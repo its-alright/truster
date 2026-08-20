@@ -1,0 +1,26 @@
+#
+# 100% POST
+#
+
+name = "profile 1 (POST-100%)"
+base_url = "http://localhost:5401/api/v2.0"
+
+[[endpoints]]
+url = "input"
+method = "POST"
+name = "GET STATUS BY UID"
+rps = 10
+#body/source
+source = "sets"
+
+
+[[sources]]
+name = "operator_id"
+kind = "const"
+value = "840e4625-7224-44c5-855e-292893b82f07"
+
+[[sources]]
+name = "sets"
+kind = "custom"
+custom_type = "epd_sets"
+value = "../.."

@@ -1,0 +1,27 @@
+name = "profile 1"
+base_url = "http://localhost:5401/api/v2.0"
+
+[[endpoint]]
+name = "GET STATUS BY UID"
+url = "input/status/by-uid"
+rps = 10
+
+
+
+[[endpoint]]
+name = "GET STATUS BY REQUEST"
+url = "input/status/by-requestId"
+rps = 10
+
+[[sources]]
+name = "common_uid"
+kind = "dynamic"#// file / const / dynamic
+
+[[sources]]
+name = "request_id"
+kind = "dynamic"
+
+[[sources]]
+name = "operator_id"
+kind = "const"
+value = ""
