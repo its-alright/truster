@@ -1,27 +1,42 @@
-name = "profile 1"
+name = "debug #0 (GET STATUS BY REQ + GET STATUS BY UID)"
 base_url = "http://localhost:5401/api/v2.0"
 
-[[endpoint]]
+[[endpoints]]
 name = "GET STATUS BY UID"
 url = "input/status/by-uid"
-rps = 10
+method = "GET"
+rps = 1
+source = "uids"
 
+params = [
+    { name = "documentType", index = 0 },
+    { name = "uid", index = 1 },
+    { name = "operatorId", index = 2 },
+    { name = "requestType", index = 3 },
+    { name = "isAllStatuses", index = 4 },
+]
 
-
-[[endpoint]]
+[[endpoints]]
 name = "GET STATUS BY REQUEST"
-url = "input/status/by-requestId"
-rps = 10
+url = "input/status/by-request"
+method = "GET"
+rps = 1
+source = "uids"
+
+params = [
+    { name = "documentType", index = 0 },
+    { name = "uid", index = 1 },
+    { name = "operatorId", index = 2 },
+    { name = "requestType", index = 3 },
+    { name = "isAllStatuses", index = 4 },
+]
 
 [[sources]]
-name = "common_uid"
-kind = "dynamic"#// file / const / dynamic
+name = "uids"
+kind = "csv"
+value = "profiles/debug_0_uids.csv"
 
 [[sources]]
-name = "request_id"
-kind = "dynamic"
-
-[[sources]]
-name = "operator_id"
-kind = "const"
-value = ""
+name = "requests"
+kind = "csv"
+value = "profiles/debug_0_requests.csv"

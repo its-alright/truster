@@ -1,4 +1,5 @@
 use clap::Parser;
+use config::ConfigError;
 use serde::Deserialize;
 use std::str::FromStr;
 
@@ -49,9 +50,9 @@ impl FromStr for HttpMethodType {
 
 #[derive(Deserialize, Debug)]
 pub struct SourceConfig {
-    name: String,
-    kind: SourceType,
-    value: String,
+    pub name: String,
+    pub kind: SourceType,
+    pub value: String,
     custom_type: Option<String>,
 }
 
@@ -101,4 +102,16 @@ pub struct Args {
 
     #[arg(short, long, default_value = "info")]
     pub log: String,
+}
+
+pub fn load_config(args: &Args) -> Result<AppConfig, ConfigError> {
+    let profile_path = args.profile.as_str();
+
+    let config = config::Config::builder()
+        .add_source(config::File::with_name(profile_path).required(true))
+        .add_source(config::Environment::with_prefix("TRUST"))
+        .build()?
+        .try_deserialize()?;
+
+    Ok(config)
 }
