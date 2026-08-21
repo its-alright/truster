@@ -1,3 +1,4 @@
+use clap::Parser;
 use serde::Deserialize;
 use std::str::FromStr;
 
@@ -61,6 +62,7 @@ pub enum SourceType {
     Const,
     Dynamic,
     Custom,
+    Csv,
 }
 
 impl TryFrom<String> for SourceType {
@@ -79,8 +81,24 @@ impl FromStr for SourceType {
             "const" => Ok(SourceType::Const),
             "custom" => Ok(SourceType::Custom),
             "dynamic" => Ok(SourceType::Dynamic),
-            "File" => Ok(SourceType::File),
+            "file" => Ok(SourceType::File),
+            "csv" => Ok(SourceType::Csv),
             _ => Err(format!("Unknown source type: {}", s)),
         }
     }
+}
+
+#[derive(Parser, Debug)]
+#[command(author, version, about = "Load testing utility", long_about = None)]
+pub struct Args {
+    //path to profile
+    #[arg(short, long)]
+    pub profile: String,
+
+    /// Test duration in seconds
+    #[arg(short, long, default_value = "300")]
+    pub duration: u64,
+
+    #[arg(short, long, default_value = "info")]
+    pub log: String,
 }

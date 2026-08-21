@@ -1,0 +1,48 @@
+#
+# 100% POST
+#
+
+name = "debug #0 (GET STATUS BY REQ + GET STATUS BY UID)"
+base_url = "http://localhost:5401/api/v2.0"
+
+[[endpoints]]
+url = "input/status/by-uid"
+method = "GET"
+name = "GET STATUS BY UID"
+rps = 1
+source = "uids"
+
+# Форматтеры обожают этот синтаксис и сохраняют вложенность в столбик
+params = [
+    { name = "documentType", index = 0 },
+    { name = "uid", index = 1 },
+    { name = "operatorId", index = 2 },
+    { name = "requestType", index = 3 },
+    { name = "isAllStatuses", index = 4 },
+]
+
+[[endpoints]]
+url = "input/status/by-request"
+method = "GET"
+name = "GET STATUS BY UID"
+rps = 1
+source = "uids"
+
+# Форматтеры обожают этот синтаксис и сохраняют вложенность в столбик
+params = [
+    { name = "documentType", index = 0 },
+    { name = "uid", index = 1 },
+    { name = "operatorId", index = 2 },
+    { name = "requestType", index = 3 },
+    { name = "isAllStatuses", index = 4 },
+]
+
+[[sources]]
+name = "uids"
+kind = "csv"
+value = "profiles/debug_0_uids.csv"
+
+[[sources]]
+name = "requests"
+kind = "csv"
+value = "profiles/debug_0_requests.csv"

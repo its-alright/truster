@@ -7,3 +7,16 @@ edition = "2024"
 serde = { version = "1.0", features = ["derive"] }
 config = { version = "0.14", features = ["toml"] }
 uuid = { version = "1.11.0", features = ["v4", "serde"] }
+
+# Логирование (JSON structured logging)
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+
+# args
+clap = { version = "4.0", features = ["derive"] }
+
+# shutdown logic
+ctrlc = "3.5.2"
+
+# http reqs
+reqwest = "0.13.4"

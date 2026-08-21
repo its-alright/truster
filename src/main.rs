@@ -1,25 +1,51 @@
 mod app_config;
+mod app_logger;
 
-use app_config::AppConfig;
+use app_config::{AppConfig, Args};
+use app_logger::init_logger;
+
+use clap::Parser;
 use config::ConfigError;
 
-fn main() {
-    match load_config() {
-        Ok(conf) => {
-            let t = 0;
+use std::{collections::HashMap, sync::Arc};
 
-            //println!("{:#?}", conf);
-            println!("done parsing");
+/*
+use std::{
+    collections::HashMap,
+    sync::{Arc, atomic::AtomicBool, atomic::Ordering},
+    time::Duration,
+};
+ */
+
+fn main() {
+    let args = Args::parse();
+
+    init_logger(&args);
+
+    tracing::info!(
+        profile = args.profile,
+        duration = args.duration,
+        log = args.log,
+        "parse profile config"
+    );
+
+    match load_config(&args) {
+        Ok(conf) => {
+            let c = Arc::new(conf);
+            tracing::info!("config parsed");
         }
         Err(err) => {
-            println!("Failed to load config: {}", err);
+            tracing::error!("Failed to load config: {}", err);
+            return;
         }
     }
 }
 
-fn load_config() -> Result<AppConfig, ConfigError> {
+fn load_config(args: &Args) -> Result<AppConfig, ConfigError> {
+    let profile_path = args.profile.as_str();
+
     let config = config::Config::builder()
-        .add_source(config::File::with_name("profiles/profile1.toml").required(true))
+        .add_source(config::File::with_name(profile_path).required(true))
         .add_source(config::Environment::with_prefix("TRUST"))
         .build()?
         .try_deserialize()?;
