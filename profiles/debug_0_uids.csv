@@ -1,4 +1,4 @@
-documentType;uid;operatorId;requestType;isAllStatuses
+document_type;uid;operator_id;request_type;is_all_statuses
 1;316033f7-8206-46cc-ba5e-dc755e850c1a;840e4625-7224-44c5-855e-292893b82f07;3;true
 1;11c3b7a2-bcdb-4130-a6be-d066aa0e55aa;840e4625-7224-44c5-855e-292893b82f07;3;true
 1;5140d822-aa7d-49b3-b419-cdd757eca424;840e4625-7224-44c5-855e-292893b82f07;3;true

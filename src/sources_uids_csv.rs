@@ -1,32 +1,75 @@
 use crate::data_sources::{DataItem, DataSource, UidStatusParams};
+use anyhow::Result;
+use anyhow::anyhow;
 use rand::{seq::SliceRandom, thread_rng};
+use std::any::type_name;
+use std::sync::Mutex;
 
 struct UidsSource {
-    uids: Vec<UidStatusParams>,
+    uids: Mutex<Vec<UidStatusParams>>,
 }
 
 impl UidsSource {
     pub fn new(v: Vec<UidStatusParams>) -> Self {
-        Self { uids: v }
+        Self {
+            uids: Mutex::new(v),
+        }
     }
 }
 
 impl DataSource for UidsSource {
-    fn get_rnd(&self) -> Option<DataItem> {
+    fn get_rnd(&self) -> Result<Option<DataItem>> {
         let mut rng = thread_rng();
-        self.uids.choose(&mut rng).map(|item| DataItem::Uid(item))
+        let map_guard = self
+            .uids
+            .lock()
+            .map_err(|e| anyhow!("Failed to lock mutex: {}", e))?;
+
+        // Выбираем случайный элемент
+        match map_guard.choose(&mut rng) {
+            Some(item) => {
+                // Возвращаем клон преобразованный в DataItem
+                Ok(Some(DataItem::Uid(item.clone())))
+            }
+            None => {
+                // Вектор пустой - возвращаем None
+                Err(anyhow!("DataSource has no items"))
+            }
+        }
     }
 
     fn is_empty(&self) -> bool {
-        self.uids.is_empty()
+        self.uids
+            .lock()
+            .map(|guard| guard.is_empty())
+            .unwrap_or(false)
     }
 
-    fn len(&self) -> u32 {
-        self.uids.len() as u32
+    fn len(&self) -> usize {
+        self.uids.lock().map(|guard| guard.len()).unwrap_or(0)
+    }
+
+    fn push(&self, item: DataItem) {
+        // Извлекаем UidStatusParams из enum
+        let params = match item {
+            DataItem::Uid(params) => params,
+            _ => {
+                let type_name = type_name::<UidsSource>();
+                tracing::warn!(
+                    source_type = type_name,
+                    "failed to add Item to Uids DataSource..."
+                );
+
+                return;
+            }
+        };
+
+        let mut guard = self.uids.lock().unwrap();
+        guard.push(params);
     }
 }
 
-pub fn load_from_csv(path: &str) -> Box<dyn DataSource> {
+pub fn load_from_csv(path: &str) -> impl DataSource + use<> {
     let mut rdr = csv::ReaderBuilder::new()
         .delimiter(b';')
         .from_path(path)
@@ -40,5 +83,5 @@ pub fn load_from_csv(path: &str) -> Box<dyn DataSource> {
         vec.push(item);
     }
 
-    Box::new(UidsSource::new(vec))
+    UidsSource::new(vec)
 }

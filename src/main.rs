@@ -7,16 +7,15 @@ use app_config::{Args, load_config};
 use app_logger::init_logger;
 
 use clap::Parser;
+use std::any::type_name;
 use std::{
-    collections::HashMap,
     sync::{Arc, atomic::AtomicBool, atomic::Ordering},
     time::Duration,
 };
+//use tokio::time::{ MissedTickBehavior, interval };
 
-use tokio::time::{MissedTickBehavior, interval};
-
+use crate::data_sources::DataItem;
 use crate::{app_config::SourceType, data_sources::DataSource, sources_uids_csv::load_from_csv};
-
 /*
 use std::{
     collections::HashMap,
@@ -52,7 +51,7 @@ async fn main() {
     // let mut handles = vec![];
 
     //load all static sources
-    let mut sources: HashMap<String, Box<dyn DataSource>> = HashMap::new();
+    let sources = crate::data_sources::DataSourceHashMap::new();
 
     for cfg_source in cfg.sources.iter() {
         tracing::info!(name = cfg_source.name, "loading start...");
@@ -63,13 +62,41 @@ async fn main() {
                 //TODO Result pattern
                 let source = load_from_csv(&cfg_source.value);
 
+                for i in (1..5) {
+                    if let Ok(rnd_item) = source.get_rnd() {
+                        if let Some(itm) = rnd_item {
+                            match itm {
+                                DataItem::Uid(params) => {
+                                    let u = params.uid.to_string();
+                                    tracing::info!(
+                                        name = cfg_source.name,
+                                        count = source.len(),
+                                        i = i,
+                                        uid = u,
+                                        "loading successfull"
+                                    );
+                                }
+                                _ => {
+                                    tracing::warn!("unknown item");
+                                }
+                            };
+                        }
+                    }
+
+                    tracing::info!(
+                        name = cfg_source.name,
+                        count = source.len(),
+                        "loading successfull"
+                    );
+                }
+
                 tracing::info!(
                     name = cfg_source.name,
                     count = source.len(),
                     "loading successfull"
                 );
-                
-                sources.insert(key, source);
+
+                sources.insert(key, Arc::new(source));
             }
             _ => {
                 tracing::warn!(name = cfg_source.name, "unknown source kind or name")
